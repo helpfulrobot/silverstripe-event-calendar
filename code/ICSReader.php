@@ -17,7 +17,7 @@ class ICSReader
      * @var     array
      * @access  private
      */
-    var $_source = '';
+    public $_source = '';
 
     /**
      * Line number to be parsed next
@@ -25,7 +25,7 @@ class ICSReader
      * @var     int
      * @access  private
      */
-    var $_linenum = 0;
+    public $_linenum = 0;
 
     /**
      * Parsed data
@@ -33,7 +33,7 @@ class ICSReader
      * @var     array
      * @access  private
      */
-    var $_data = array();
+    public $_data = array();
 
     /**
      * Constructor
@@ -41,7 +41,7 @@ class ICSReader
      * @param   string  Path to file to be parsed
      * @access  public
      */
-    function ICSReader($source)
+    public function ICSReader($source)
     {
         $source = file_get_contents($source);
         $source = preg_split('/\n([A-Z\-]+\;?[^\:]*\:.+)/', $source, -1, PREG_SPLIT_DELIM_CAPTURE|PREG_SPLIT_NO_EMPTY);
@@ -58,7 +58,7 @@ class ICSReader
      * @access  public
      * @return  array   Parsed meta information
      */
-    function getMeta()
+    public function getMeta()
     {
         return $this->_data['meta'];
     }
@@ -69,7 +69,7 @@ class ICSReader
      * @access  public
      * @return  array   Parsed event information
      */
-    function getEvents()
+    public function getEvents()
     {
         return $this->_data['events'];
     }
@@ -79,7 +79,7 @@ class ICSReader
      *
      * @access  private
      */
-    function _parseMeta()
+    public function _parseMeta()
     {
         // Init
         $meta = array();
@@ -116,7 +116,7 @@ class ICSReader
      *
      * @access  private
      */
-    function _parseEvents()
+    public function _parseEvents()
     {
         // Init
         $events = array();
@@ -127,8 +127,8 @@ class ICSReader
         while (isset($this->_source[$i])) {
             $line = $this->_source[$i];
             @list($key, $value) = explode(':', $line, 2);
-	    // drop unnecessary key params
-	    $key = preg_replace('/\;.*$/', '', $key);
+        // drop unnecessary key params
+        $key = preg_replace('/\;.*$/', '', $key);
 
             // Event information
             $events[$j++] = $this->_parseEvent();
@@ -148,7 +148,7 @@ class ICSReader
      *
      * @access  private
      */
-    function _parseEvent()
+    public function _parseEvent()
     {
         // Init
         $event = array();
@@ -164,8 +164,8 @@ class ICSReader
             $line = $this->_source[$i];
             //echo "line is $line <br />";
             @list($key, $value) = explode(':', $line, 2);
-	    // drop unnecessary key params
-	    $key = preg_replace('/\;.*$/', '', $key);
+        // drop unnecessary key params
+        $key = preg_replace('/\;.*$/', '', $key);
 
             // Event information
             if ($key === 'DESCRIPTION') {
@@ -176,16 +176,16 @@ class ICSReader
             }
             $event[$key] = $value;
             $i++;
-	    // if the next line doesn't start with at least 3 capitals or dashes,
-	    //   merge it into this, since it's probably the other half of a description/location
-	    if ( !preg_match('/^[A-Z\-]{3}/', $this->_source[$i]) ) {
-                $addon = str_replace(
+        // if the next line doesn't start with at least 3 capitals or dashes,
+        //   merge it into this, since it's probably the other half of a description/location
+        if (!preg_match('/^[A-Z\-]{3}/', $this->_source[$i])) {
+            $addon = str_replace(
                             array("\r\n", '\n', '\,', '\;'),
                             array('', "\n", ',', ';'),
                             $this->_source[$i]);
-		$event[$key] .= $addon;
-		$i++;
-	    }
+            $event[$key] .= $addon;
+            $i++;
+        }
 
             // Check next line for EOE
             if ($this->_source[$i] === 'END:VEVENT') {
@@ -198,4 +198,3 @@ class ICSReader
         return false;
     }
 }
-?>
